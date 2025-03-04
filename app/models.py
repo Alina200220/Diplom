@@ -17,7 +17,8 @@ class ContentResponse(BaseModel):
     task_id: str
     status: str
     number_commits: int
-    commits_info: dict
+    commits_info_users: dict
+    commits_info_dates: dict
 
 
 class ContentRequest(BaseModel):

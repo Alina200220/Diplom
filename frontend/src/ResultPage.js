@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import { Bar } from 'react-chartjs-2';
+import { Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   LinearScale,
   CategoryScale,
   BarElement,
+  LineElement,
   Title,
   Tooltip,
+  PointElement,
   Legend
 } from 'chart.js';
 import { useLocation } from 'react-router-dom';
 
 // Регистрация необходимых компонентов
-ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+ChartJS.register(CategoryScale, LinearScale, LineElement, BarElement, Title, Tooltip, Legend,  PointElement);
 
 const ResultsPage = () => {
     const location = useLocation(); // Получаем состояние из навигации
@@ -24,20 +26,35 @@ const ResultsPage = () => {
     // Функция для обработки коммитов и подготовки данных для графика
     const prepareChartData = () => {
         console.log("Result Data:", result); 
-        if (!result || typeof result.commits_info !== 'object' || Object.keys(result.commits_info).length === 0) {
+        if (!result || typeof result.commits_info_users !== 'object' || Object.keys(result.commits_info_users).length === 0) {
           return { labels: [], data: [] }; // Возвращаем пустые массивы, если данных нет
         }
     
-        const commitsInfo = result.commits_info;
+        const commitsInfo = result.commits_info_users;
     
         // Извлекаем даты и количество коммитов
-        const labels = Object.keys(commitsInfo); // Даты
-        const data = Object.values(commitsInfo); // Количество коммитов
+        const labels_users = Object.keys(commitsInfo); // Даты
+        const data_users = Object.values(commitsInfo); // Количество коммитов
     
-        return { labels, data };
+        return { labels_users, data_users };
       };
+
+      const prepareDateChartData = () => {
+        if (!result || typeof result.commits_info_dates !== 'object' || Object.keys(result.commits_info_dates).length === 0) {
+            return { labels: [], data: [] }; // Возвращаем пустые массивы, если данных нет
+        }
+
+        const commitsInfoDates = result.commits_info_dates;
+
+        // Извлекаем даты и количество коммитов
+        const labels_dates = Object.keys(commitsInfoDates); // Даты
+        const data_dates = Object.values(commitsInfoDates); // Количество коммитов
+
+        return { labels_dates, data_dates };
+    };
     
       const chartData = prepareChartData();
+      const dateChartData = prepareDateChartData();
     
       return (
         <div 
@@ -62,11 +79,11 @@ const ResultsPage = () => {
             }}>
           <Bar
             data={{
-              labels: chartData.labels,
+              labels: chartData.labels_users,
               datasets: [
                 {
                   label: 'Количество коммитов',
-                  data: chartData.data,
+                  data: chartData.data_users,
                   backgroundColor: 'rgba(75, 192, 192, 0.6)',
                   borderColor: 'rgba(75, 192, 192, 1)',
                   borderWidth: 1,
@@ -81,7 +98,7 @@ const ResultsPage = () => {
                 },
                 title: {
                   display: true,
-                  text: 'Коммиты по датам',
+                  text: 'Количество коммитов пользователей',
                 },
               },
             }}
@@ -89,6 +106,46 @@ const ResultsPage = () => {
             height={300} 
           />
         </div>
+        {/* Линейный график количества коммитов по датам */}
+        <div style={{ 
+                width: '100%', 
+                maxWidth: '600px', // Максимальная ширина графика
+                margin: '20px auto', // Центрирование
+                background: '#fff', // Белый фон для графика
+                borderRadius: '8px', // Закругленные углы
+                boxShadow: '0 2px 10',
+                boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)', // Тень для глубины
+                padding: '20px' // Отступы внутри контейнера
+            }}>
+                <Line
+                    data={{
+                        labels: dateChartData.labels_dates,
+                        datasets: [
+                            {
+                                label: 'Количество коммитов по датам',
+                                data: dateChartData.data_dates,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                                fill: true, // Заполнение под графиком
+                            },
+                        ],
+                    }}
+                    options={{
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Количество коммитов по датам',
+                            },
+                        },
+                    }}
+                    width={400} // Ширина графика
+                    height={300} 
+                />
+            </div>
         </div>
       );
     };
