@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+
+  app:
+    container_name: app
+    build: .
+    command: python -m uvicorn main:app --host 0.0.0.0 --port 8080
+    volumes:
+      - ./app/:/app
+    ports:
+      - 8080:8080
+    links:
+      - redis
+      - celery_worker
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - GIT_API_KEY=${GIT_API_KEY}
+    restart: always
+
+  redis:
+    container_name: redis
+    image: redis:7.2.4-alpine
+    ports:
+      - "6379:6379"
+
+  celery_worker:
+    container_name: celery_worker
+    build: .
+    command: celery -A worker.celery_app worker --loglevel=info 
+    volumes:
+      - ./app/:/app
+    environment:
+      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_RESULT_BACKEND=${CELERY_RESULT_BACKEND}
+      - REDIS_HOST=${REDIS_HOST}
+      - GIT_API_KEY=${GIT_API_KEY}
+    links:
+      - redis
+    depends_on:
+      - redis
+  
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    restart: always
