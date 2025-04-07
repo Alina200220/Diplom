@@ -19,6 +19,7 @@ class ContentResponse(BaseModel):
     number_commits: int
     commits_info_users: dict
     commits_info_dates: dict
+    pull_requests_closed: str
 
 
 class ContentRequest(BaseModel):

@@ -37,5 +37,6 @@ async def predict_result(task_id):
     task = AsyncResult(task_id)
     if not task.ready():
         return JSONResponse(status_code=202, content={"task_id": str(task_id), "status": "Processing"})
-    number_commits, commits_info_users, commits_info_dates = task.get()
-    return {"task_id": task_id, "status": "Success", "number_commits": number_commits, "commits_info_users":commits_info_users, "commits_info_dates":commits_info_dates}
+    number_commits, commits_info_users, commits_info_dates, pull_requests_closed = task.get()
+    return {"task_id": task_id, "status": "Success", "number_commits": number_commits, "commits_info_users":commits_info_users, "commits_info_dates":commits_info_dates,
+            "pull_requests_closed":pull_requests_closed}

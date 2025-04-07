@@ -1,3 +1,4 @@
+import asyncio
 from celery import Task
 from form_report import process_commit_info_users, process_commit_info_dates
 from github_api import GitApi
@@ -21,4 +22,5 @@ def predict(self, owner:str, repo:str):
     number_commits, commits_info = self.api_instance.find_commits(owner, repo)
     commits_info_users = process_commit_info_users(commits_info)
     commits_info_dates = process_commit_info_dates(commits_info)
-    return number_commits, commits_info_users, commits_info_dates
+    pull_requests_closed = asyncio.run(self.api_instance.find_pull_requests_closed(owner, repo))
+    return number_commits, commits_info_users, commits_info_dates, pull_requests_closed

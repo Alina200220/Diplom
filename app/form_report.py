@@ -16,4 +16,5 @@ def process_commit_info_dates(commits_info:list[dict]):
     data_dates = dict(Counter(dates))
     return data_dates
 
+
 process_commit_info_users(commits_info)
