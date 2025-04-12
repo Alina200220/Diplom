@@ -23,4 +23,6 @@ def predict(self, owner:str, repo:str):
     commits_info_users = process_commit_info_users(commits_info)
     commits_info_dates = process_commit_info_dates(commits_info)
     pull_requests_closed = asyncio.run(self.api_instance.find_pull_requests_closed(owner, repo))
-    return number_commits, commits_info_users, commits_info_dates, pull_requests_closed
+    pull_requests_opened = asyncio.run(self.api_instance.find_pull_requests_opened(owner, repo))
+    number_issues, issues_info, dates_dict = self.api_instance.find_issues(owner, repo)
+    return number_commits, commits_info_users, commits_info_dates, pull_requests_closed, pull_requests_opened, dates_dict
